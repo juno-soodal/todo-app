@@ -1,7 +1,6 @@
 package com.example.todoapp.domain.repository;
 
 import com.example.todoapp.domain.entity.Schedule;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,23 @@ class ScheduleRepositoryImplTest {
 
         //목록조회
         LocalDate modifiedAt = savedSchedule.getModifiedAt().toLocalDate();
-        List<Schedule> schedules = scheduleRepository.findAll(savedSchedule.getAuthorId(), modifiedAt);
+        List<Schedule> schedules = scheduleRepository.findAll(savedSchedule.getAuthorId(), modifiedAt, page, size);
         assertThat(schedules.get(0).getModifiedAt().toLocalDate()).isEqualTo(modifiedAt);
 
 
+    }
+
+    @Test
+    public void name() {
+//
+//
+//        for (int i = 1; i <=  101; i++) {
+//            if(i < 50) {
+//                Schedule savedSchedule = scheduleRepository.save(new Schedule(3L, i + "할일"));
+//            }else {
+//                Schedule savedSchedule = scheduleRepository.save(new Schedule(9L, i + "할일"));
+//            }
+//
+//        }
     }
 }
