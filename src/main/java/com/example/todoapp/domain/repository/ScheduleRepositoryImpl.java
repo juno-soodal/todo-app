@@ -41,26 +41,32 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
     }
 
     @Override
-    public List<Schedule> findAll(Long authorId, LocalDate modifiedAt) {
+    public List<Schedule> findAll(Long authorId, LocalDate modifiedAt, int page, int size) {
         String sql = "SELECT * FROM SCHEDULE WHERE author_id = ?";
 
         List<String> params = new ArrayList<>();
         List<String> andConditions = new ArrayList<>();
+
         if (modifiedAt != null) {
             params.add(String.valueOf(modifiedAt));
-            andConditions.add("DATE(modified_at) = ?");
+            andConditions.add("DATE(modified_at) = ? ");
         }
 
         if (!andConditions.isEmpty()) {
             sql += " AND ";
             sql += String.join(" AND ", andConditions);
         }
-
+        sql +=" ORDER BY modified_at DESC ";
+        sql +=" LIMIT ? OFFSET ? ";
+        int paramSize = params.size();
         return jdbcTemplate.query(sql, ps -> {
-            ps.setLong(1, authorId);
-            for (int i = 0; i < params.size(); i++) {
-                ps.setString(i+2, params.get(i));
+            int index = 1;
+            ps.setLong(index++, authorId);
+            for (String param : params) {
+                ps.setString(index++, param);
             }
+            ps.setInt(index++, size);
+            ps.setInt(index, page * size);
         }, scheduleRowMapper());
     }
 
@@ -102,8 +108,18 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
         });
     }
 
+    @Override
+    public int findTotalCount(Long authorId) {
+        String sql = "SELECT count(*) FROM SCHEDULE WHERE author_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, authorId);
+    }
+
     private RowMapper<Schedule> scheduleRowMapper() {
-        return (rs, rowNum) -> new Schedule(rs.getLong("author_id"), rs.getString("to_do"));
+        return (rs, rowNum) -> {
+            Schedule schedule = new Schedule(rs.getLong("author_id"), rs.getString("to_do"));
+            schedule.setId(rs.getLong("id"));
+            return schedule;
+        };
     }
 
 }

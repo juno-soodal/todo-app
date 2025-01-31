@@ -36,12 +36,21 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleResponse> getSchedules(Long authorId, LocalDate modifiedAt) {
+    public List<ScheduleResponse> getSchedules(Long authorId, LocalDate modifiedAt, int page, int size) {
         Author findAuthor = authorRepository.findById(authorId);
         if (findAuthor == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "없는 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "없는 사용자입니다.");
         }
-        List<Schedule> schedules = scheduleRepository.findAll(findAuthor.getId(), modifiedAt);
+
+        int totalCount = scheduleRepository.findTotalCount(findAuthor.getId());
+        double totalPages = Math.ceil((double) totalCount / size);
+//        101 / 10  =10;
+//        "page": page,
+//                "size": size,
+//                "totalPages": 4,
+//                "totalElements": 100,
+//        limit size offset page - 1 * size;
+        List<Schedule> schedules = scheduleRepository.findAll(findAuthor.getId(), modifiedAt, page, size);
         return schedules.stream().map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getToDo(), findAuthor.getAuthorName(), schedule.getCreatedAt(), schedule.getModifiedAt())).toList();
     }
 

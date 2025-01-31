@@ -6,6 +6,7 @@ import com.example.todoapp.application.dto.ScheduleResponse;
 import com.example.todoapp.application.dto.UpdateScheduleRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/authors/{authorId}/schedules")
 @RequiredArgsConstructor
 public class ScheduleController {
@@ -37,9 +39,11 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getSchedules(@PathVariable Long authorId, @RequestParam(required = false) LocalDate modifiedAt) {
-
-        List<ScheduleResponse> scheduleResponseList = scheduleService.getSchedules(authorId, modifiedAt);
+    public ResponseEntity<ApiResponse<List<ScheduleResponse>>> getSchedules(@PathVariable Long authorId, @RequestParam(required = false) LocalDate modifiedAt,@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        if (page < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "페이지 번호는 0 이상이어야 합니다.");
+        }
+        List<ScheduleResponse> scheduleResponseList = scheduleService.getSchedules(authorId, modifiedAt, page, size);
         ApiResponse<List<ScheduleResponse>> apiResponse = new ApiResponse<>(scheduleResponseList);
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }

@@ -8,11 +8,13 @@ import java.util.List;
 public interface ScheduleRepository {
     Schedule save(Schedule newSchedule);
 
-    List<Schedule> findAll(Long authorId, LocalDate modifiedAt);
+    List<Schedule> findAll(Long authorId, LocalDate modifiedAt, int page, int size);
 
     Schedule find(Long authorId, Long scheduleId);
 
     int deleteSchedule(Long authorId, Long scheduleId);
 
     int updateSchedule(Schedule updateSchedule);
+
+    int findTotalCount(Long id);
 }
