@@ -4,5 +4,5 @@ import com.example.todoapp.application.dto.CreateAuthorRequest;
 import com.example.todoapp.application.dto.AuthorResponse;
 
 public interface AuthorService {
-    AuthorResponse createAuthor(CreateAuthorRequest createAuthorRequest);
+    AuthorResponse createAuthor(String authorName, String email, String password);
 }

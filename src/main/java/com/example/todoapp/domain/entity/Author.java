@@ -1,6 +1,5 @@
 package com.example.todoapp.domain.entity;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 public class Author {
 
-    @Setter
     private Long id;
     private String authorName;
     private String email;
@@ -23,6 +21,21 @@ public class Author {
         this.password = password;
         this.createdAt = LocalDateTime.now();
         this.modifiedAt = LocalDateTime.now();
+    }
+
+
+
+    public Author(Long id, String authorName, String email,String password, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        this.id = id;
+        this.authorName = authorName;
+        this.email = email;
+        this.password = password;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
+    }
+
+    public Author withId(Long id, Author author) {
+        return new Author(id, author.getAuthorName(), author.getEmail(),author.getPassword(), author.getCreatedAt(), author.getModifiedAt());
     }
 
     public boolean isPassword(String password) {
