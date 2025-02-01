@@ -3,19 +3,14 @@ package com.example.todoapp.domain.repository;
 import com.example.todoapp.domain.entity.Author;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -49,16 +44,16 @@ public class AuthorRepositoryImpl implements AuthorRepository{
 
 
     @Override
-    public Author findByEmail(String email) {
+    public Optional<Author> findByEmail(String email) {
         String sql ="SELECT * FROM AUTHOR WHERE email = ?";
-        return jdbcTemplate.query(sql, authorRowMapper(), email).stream().findFirst().orElse(null);
+        return jdbcTemplate.query(sql, authorRowMapper(), email).stream().findFirst();
 
     }
 
     @Override
-    public Author findById(Long authorId) {
+    public Optional<Author> findById(Long authorId) {
         String sql ="SELECT * FROM AUTHOR WHERE id = ?";
-        return jdbcTemplate.query(sql, authorRowMapper(), authorId).stream().findFirst().orElse(null);
+        return jdbcTemplate.query(sql, authorRowMapper(), authorId).stream().findFirst();
     }
 
     private RowMapper<Author> authorRowMapper() {
