@@ -7,6 +7,6 @@ import lombok.Getter;
 public class UpdateScheduleRequest {
 
     private String toDo;
-    @NotEmpty
+    @NotEmpty(message = "비밀번호는 필수 값입니다.")
     private String password;
 }

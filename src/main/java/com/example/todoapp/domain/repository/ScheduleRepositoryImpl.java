@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,9 +36,8 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
             pstm.setTimestamp(4, Timestamp.valueOf(schedule.getModifiedAt()));
             return pstm;
         }, keyHolder);
-        long key = Objects.requireNonNull(keyHolder.getKey()).longValue();
-        schedule.setId(key);
-        return schedule;
+        long key = keyHolder.getKey().longValue();
+        return schedule.withId(key, schedule);
     }
 
     @Override
@@ -72,12 +72,12 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
 
 
     @Override
-    public Schedule find(Long authorId, Long scheduleId) {
+    public Optional<Schedule> find(Long authorId, Long scheduleId) {
         String sql = """
                 SELECT * FROM SCHEDULE
                 WHERE id = ? and author_id = ?
         """;
-        return jdbcTemplate.query(sql, scheduleRowMapper(), scheduleId,authorId).stream().findAny().orElse(null);
+        return jdbcTemplate.query(sql, scheduleRowMapper(), scheduleId,authorId).stream().findFirst();
     }
 
     @Override
@@ -115,11 +115,12 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
     }
 
     private RowMapper<Schedule> scheduleRowMapper() {
-        return (rs, rowNum) -> {
-            Schedule schedule = new Schedule(rs.getLong("author_id"), rs.getString("to_do"));
-            schedule.setId(rs.getLong("id"));
-            return schedule;
-        };
+        return (rs, rowNum) -> new Schedule(
+                rs.getLong("id"),
+                rs.getLong("author_id"),
+                rs.getString("to_do"),
+                rs.getTimestamp("created_at").toLocalDateTime(),
+                rs.getTimestamp("modified_at").toLocalDateTime());
     }
 
 }

@@ -8,14 +8,14 @@ import lombok.Getter;
 @Getter
 public class CreateAuthorRequest {
 
-    @NotEmpty
+    @NotEmpty(message = "작서자 명은 필수값입니다.")
     private final String authorName;
 
-    @NotNull
+    @NotNull(message = "이메일은 필수값입니다.")
     @Email
     private final String email;
 
-    @NotEmpty
+    @NotEmpty(message = "패스워드는 필수값입니다.")
     private final String password;
 
     public CreateAuthorRequest(String authorName, String email, String password) {

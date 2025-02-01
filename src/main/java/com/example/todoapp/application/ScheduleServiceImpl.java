@@ -7,27 +7,27 @@ import com.example.todoapp.domain.entity.Author;
 import com.example.todoapp.domain.entity.Schedule;
 import com.example.todoapp.domain.repository.AuthorRepository;
 import com.example.todoapp.domain.repository.ScheduleRepository;
+import com.example.todoapp.exception.InvalidPasswordException;
+import com.example.todoapp.exception.NotFoundAuthorException;
+import com.example.todoapp.exception.NotFoundScheduleException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScheduleServiceImpl implements ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final AuthorRepository authorRepository;
     @Override
     public ScheduleResponse createSchedule(Long authorId, CreateScheduleRequest createScheduleRequest) {
-        Author findAuthor = authorRepository.findById(authorId);
-        if (findAuthor == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 작성자 정보를 입력하세요");
-        }
+        Author findAuthor = authorRepository.findById(authorId).orElseThrow(NotFoundAuthorException::new);
         if(!findAuthor.isPassword(createScheduleRequest.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지않는 값입니다.");
+            throw new InvalidPasswordException();
         }
         Schedule newSchedule = new Schedule(findAuthor.getId(),createScheduleRequest.getToDo());
         Schedule savedSchedule = scheduleRepository.save(newSchedule);
@@ -37,10 +37,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public List<ScheduleResponse> getSchedules(Long authorId, LocalDate modifiedAt, int page, int size) {
-        Author findAuthor = authorRepository.findById(authorId);
-        if (findAuthor == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "없는 사용자입니다.");
-        }
+        Author findAuthor = authorRepository.findById(authorId).orElseThrow(NotFoundAuthorException::new);
+
 
         int totalCount = scheduleRepository.findTotalCount(findAuthor.getId());
         double totalPages = Math.ceil((double) totalCount / size);
@@ -57,52 +55,41 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleResponse getSchedule(Long authorId, Long scheduleId) {
 
-        Schedule findSchedule = scheduleRepository.find(authorId, scheduleId);
-        if (findSchedule == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지않는 일정입니다.");
-        }
-        Author findAuthor = authorRepository.findById(findSchedule.getAuthorId());
+        Schedule findSchedule = scheduleRepository.find(authorId, scheduleId).orElseThrow(NotFoundScheduleException::new);
+        Author findAuthor = authorRepository.findById(authorId).orElseThrow(NotFoundAuthorException::new);
 
         return new ScheduleResponse(findSchedule.getId(), findSchedule.getToDo(), findAuthor.getAuthorName(),findSchedule.getCreatedAt(), findSchedule.getModifiedAt());
     }
 
     @Override
     public ScheduleResponse updateSchedule(Long authorId, Long scheduleId, UpdateScheduleRequest updateScheduleRequest) {
-        Schedule findSchedule = scheduleRepository.find(authorId, scheduleId);
-        if (findSchedule == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지않는 일정입니다.");
-        }
-        Author findAuthor = authorRepository.findById(findSchedule.getAuthorId());
-        if (findAuthor == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지않는 값입니다.");
-        }
+        Schedule findSchedule = scheduleRepository.find(authorId, scheduleId).orElseThrow(NotFoundScheduleException::new);
+        Author findAuthor = authorRepository.findById(authorId).orElseThrow(NotFoundAuthorException::new);
 
         if (!findAuthor.isPassword(updateScheduleRequest.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지않는 값입니다.");
+            throw new InvalidPasswordException();
         }
+        log.info("findSchedule={}",findSchedule);
         findSchedule.updateSchedule(updateScheduleRequest.getToDo());
+        int updatedRow = scheduleRepository.updateSchedule(findSchedule);
+        if (updatedRow == 0) {
+            throw new NotFoundScheduleException();
+        }
+        log.info("updatedSchedule={}",findSchedule);
         return new ScheduleResponse(findSchedule.getId(), findSchedule.getToDo(), findAuthor.getAuthorName(),findSchedule.getCreatedAt(), findSchedule.getModifiedAt());
     }
 
     @Override
     public void deleteSchedule(Long authorId, Long scheduleId, String password) {
-        Schedule findSchedule = scheduleRepository.find(authorId, scheduleId);
-        if (findSchedule == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지않는 일정입니다.");
-        }
-
-        Author findAuthor = authorRepository.findById(findSchedule.getAuthorId());
-        if (findAuthor == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지않는 값입니다.");
-        }
+        Author findAuthor = authorRepository.findById(authorId).orElseThrow(NotFoundAuthorException::new);
 
         if (!findAuthor.isPassword(password)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지않는 값입니다.");
+            throw new InvalidPasswordException();
         }
 
         int deletedRow = scheduleRepository.deleteSchedule(authorId, scheduleId);
-        if (deletedRow != 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "일정삭제 실패했습니다.");
+        if (deletedRow == 0) {
+            throw new NotFoundScheduleException();
         }
     }
 }

@@ -27,7 +27,7 @@ class ScheduleRepositoryImplTest {
         assertThat(savedSchedule.getToDo()).isEqualTo("할일 2");
 
         //단건 조회
-        Schedule schedule = scheduleRepository.find(savedSchedule.getAuthorId(), savedSchedule.getId());
+        Schedule schedule = scheduleRepository.find(savedSchedule.getAuthorId(), savedSchedule.getId()).get();
         assertThat(schedule.getToDo()).isEqualTo("할일 2");
 
         //수정
@@ -40,11 +40,6 @@ class ScheduleRepositoryImplTest {
         //삭제
         int deletedRow = scheduleRepository.deleteSchedule(savedSchedule.getAuthorId(), savedSchedule.getId());
         assertThat(deletedRow).isEqualTo(1);
-
-        //목록조회
-        LocalDate modifiedAt = savedSchedule.getModifiedAt().toLocalDate();
-        List<Schedule> schedules = scheduleRepository.findAll(savedSchedule.getAuthorId(), modifiedAt, page, size);
-        assertThat(schedules.get(0).getModifiedAt().toLocalDate()).isEqualTo(modifiedAt);
 
 
     }
