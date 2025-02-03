@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface ScheduleRepository {
     Schedule save(Schedule newSchedule);
 
-    List<Schedule> findAll(Long authorId, LocalDate modifiedAt, int page, int size);
+    List<Schedule> findAll(Long authorId, LocalDate modifiedAt, int offset, int size);
 
     Optional<Schedule> find(Long authorId, Long scheduleId);
 
@@ -17,5 +17,5 @@ public interface ScheduleRepository {
 
     int updateSchedule(Schedule updateSchedule);
 
-    int findTotalCount(Long id);
+    int findCount(Long id, LocalDate modifiedAt);
 }

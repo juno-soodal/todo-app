@@ -2,72 +2,63 @@ package com.example.todoapp.domain.repository;
 
 import com.example.todoapp.domain.entity.Schedule;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class ScheduleRepositoryImpl implements ScheduleRepository{
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
     public Schedule save(Schedule schedule) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        SqlParameterSource param = new BeanPropertySqlParameterSource(schedule);
         String sql = """
                 INSERT INTO
                 SCHEDULE(author_id, to_do, created_at, modified_at)
-                values(?, ?, ?, ?)
+                values(:authorId, :toDo, :createdAt, :modifiedAt)
                 """;
-        int insertedRow = jdbcTemplate.update(con -> {
-            PreparedStatement pstm = con.prepareStatement(sql, new String[]{"id"});
-            pstm.setLong(1, schedule.getAuthorId());
-            pstm.setString(2, schedule.getToDo());
-            pstm.setTimestamp(3, Timestamp.valueOf(schedule.getCreatedAt()));
-            pstm.setTimestamp(4, Timestamp.valueOf(schedule.getModifiedAt()));
-            return pstm;
-        }, keyHolder);
+        int insertedRow = jdbcTemplate.update(sql,param, keyHolder);
         long key = keyHolder.getKey().longValue();
         return schedule.withId(key, schedule);
     }
 
     @Override
-    public List<Schedule> findAll(Long authorId, LocalDate modifiedAt, int page, int size) {
-        String sql = "SELECT * FROM SCHEDULE WHERE author_id = ?";
+    public List<Schedule> findAll(Long authorId, LocalDate modifiedAt, int offset, int size) {
+        String sql = "SELECT * FROM SCHEDULE WHERE author_id = :authorId";
 
-        List<String> params = new ArrayList<>();
+        Map<String, Object> paramMap = new HashMap<>();
         List<String> andConditions = new ArrayList<>();
-
+        paramMap.put("authorId",authorId);
+        paramMap.put("size",size);
+        paramMap.put("offset", offset);
         if (modifiedAt != null) {
-            params.add(String.valueOf(modifiedAt));
-            andConditions.add("DATE(modified_at) = ? ");
+            paramMap.put("modifiedAt", Date.valueOf(modifiedAt));
+            andConditions.add("DATE(modified_at) = :modifiedAt");
         }
+
 
         if (!andConditions.isEmpty()) {
             sql += " AND ";
             sql += String.join(" AND ", andConditions);
         }
         sql +=" ORDER BY modified_at DESC ";
-        sql +=" LIMIT ? OFFSET ? ";
-        int paramSize = params.size();
-        return jdbcTemplate.query(sql, ps -> {
-            int index = 1;
-            ps.setLong(index++, authorId);
-            for (String param : params) {
-                ps.setString(index++, param);
-            }
-            ps.setInt(index++, size);
-            ps.setInt(index, page * size);
-        }, scheduleRowMapper());
+        sql +=" LIMIT :size OFFSET :offset ";
+        return jdbcTemplate.query(sql,paramMap, scheduleRowMapper());
     }
 
 
@@ -75,43 +66,56 @@ public class ScheduleRepositoryImpl implements ScheduleRepository{
     public Optional<Schedule> find(Long authorId, Long scheduleId) {
         String sql = """
                 SELECT * FROM SCHEDULE
-                WHERE id = ? and author_id = ?
+                WHERE id = :id and author_id = :authorId
         """;
-        return jdbcTemplate.query(sql, scheduleRowMapper(), scheduleId,authorId).stream().findFirst();
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("id", scheduleId)
+                .addValue("authorId", authorId);
+        return jdbcTemplate.query(sql,param,scheduleRowMapper()).stream().findFirst();
     }
 
     @Override
     public int deleteSchedule(Long authorId, Long scheduleId) {
         String sql = """
                 DELETE FROM SCHEDULE
-                WHERE id = ? AND author_id = ?
+                WHERE id = :scheduleId AND author_id = :authorId
         """;
-        return jdbcTemplate.update(sql, ps -> {
-            ps.setLong(1, scheduleId);
-            ps.setLong(2,authorId);
-        });
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("scheduleId", scheduleId)
+                .addValue("authorId", authorId);
+        return jdbcTemplate.update(sql, param);
     }
 
     @Override
     public int updateSchedule(Schedule updateSchedule) {
         String sql = """
                 UPDATE SCHEDULE
-                SET to_do = ?, modified_at = ?
-                WHERE id= ? AND author_id = ?
+                SET to_do = :toDo, modified_at = :modifiedAt
+                WHERE id = :id AND author_id = :authorId
         """;
-
-        return jdbcTemplate.update(sql, ps -> {
-            ps.setString(1, updateSchedule.getToDo());
-            ps.setTimestamp(2, Timestamp.valueOf(updateSchedule.getModifiedAt()));
-            ps.setLong(3, updateSchedule.getId());
-            ps.setLong(4, updateSchedule.getAuthorId());
-        });
+        SqlParameterSource param = new MapSqlParameterSource()
+                .addValue("toDo", updateSchedule.getToDo())
+                .addValue("modifiedAt", updateSchedule.getModifiedAt())
+                .addValue("id", updateSchedule.getId())
+                .addValue("authorId", updateSchedule.getAuthorId());
+        return jdbcTemplate.update(sql, param);
     }
 
     @Override
-    public int findTotalCount(Long authorId) {
-        String sql = "SELECT count(*) FROM SCHEDULE WHERE author_id = ?";
-        return jdbcTemplate.queryForObject(sql, Integer.class, authorId);
+    public int findCount(Long authorId, LocalDate modifiedAt) {
+        String sql = "SELECT count(*) FROM SCHEDULE WHERE author_id = :authorId";
+        Map<String, Object> param = new HashMap<>();
+        List<String> andConditions = new ArrayList<>();
+        param.put("authorId",authorId);
+        if (modifiedAt != null) {
+            param.put("modifiedAt",Date.valueOf(modifiedAt));
+            andConditions.add("DATE(modified_at) = :modifiedAt ");
+        }
+        if (!andConditions.isEmpty()) {
+            sql += " AND ";
+            sql += String.join(" AND ", andConditions);
+        }
+        return jdbcTemplate.queryForObject(sql,param,Integer.class);
     }
 
     private RowMapper<Schedule> scheduleRowMapper() {

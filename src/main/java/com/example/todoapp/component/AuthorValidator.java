@@ -1,4 +1,4 @@
-package com.example.todoapp.application;
+package com.example.todoapp.component;
 
 import com.example.todoapp.domain.repository.AuthorRepository;
 import com.example.todoapp.exception.DuplicateAuthorException;
@@ -13,7 +13,7 @@ public class AuthorValidator {
 
 
     public void validateEmailNotExists(String email) {
-        if(authorRepository.findByEmail(email).isPresent()) {
+        if(authorRepository.existsByEmail(email)) {
             throw new DuplicateAuthorException();
         }
     }

@@ -1,6 +1,8 @@
 package com.example.todoapp.application;
 
 import com.example.todoapp.application.dto.AuthorResponse;
+import com.example.todoapp.application.dto.CreateAuthorRequest;
+import com.example.todoapp.component.AuthorValidator;
 import com.example.todoapp.exception.DuplicateAuthorException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -35,10 +37,11 @@ class AuthorServiceImplTest {
         String authorName = "신규 작성자";
         String email = "asd@123.com";
         String password = "test1234";
+        CreateAuthorRequest createAuthorRequest = new CreateAuthorRequest(authorName, email, password);
         Assertions.assertThrows(DuplicateAuthorException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                authorService.createAuthor(authorName, email, password);
+                authorService.createAuthor(createAuthorRequest);
 
             }
         });
@@ -51,7 +54,7 @@ class AuthorServiceImplTest {
         String authorName = "신규 작성자";
         String email = "asda@123.com";
         String password = "test1234";
-        AuthorResponse author = authorService.createAuthor(authorName, email, password);
+        AuthorResponse author = authorService.createAuthor(new CreateAuthorRequest(authorName,email,password));
         assertThat(author.getAuthorName()).isEqualTo(authorName);
     }
 }
