@@ -1,7 +1,6 @@
 package com.example.todoapp.domain.entity;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -9,11 +8,11 @@ import java.time.LocalDateTime;
 public class Author {
 
     private Long id;
-    private String authorName;
-    private String email;
-    private String password;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final String authorName;
+    private final String email;
+    private final String password;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 
     public Author(String authorName, String email,String password) {
         this.authorName = authorName;

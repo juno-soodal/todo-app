@@ -43,18 +43,4 @@ class ScheduleRepositoryImplTest {
 
 
     }
-
-    @Test
-    public void name() {
-//
-//
-//        for (int i = 1; i <=  101; i++) {
-//            if(i < 50) {
-//                Schedule savedSchedule = scheduleRepository.save(new Schedule(3L, i + "할일"));
-//            }else {
-//                Schedule savedSchedule = scheduleRepository.save(new Schedule(9L, i + "할일"));
-//            }
-//
-//        }
-    }
 }
