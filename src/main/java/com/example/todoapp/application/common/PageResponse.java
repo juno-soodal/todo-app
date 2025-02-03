@@ -7,11 +7,11 @@ import java.util.List;
 @Getter
 public class PageResponse<T> {
 
-    private int page;
-    private int size;
-    private int totalPages;
-    private int totalElements;
-    private List<T> data;
+    private final int page;
+    private final int size;
+    private final int totalPages;
+    private final int totalElements;
+    private final List<T> data;
 
     public PageResponse(int page, int size, int totalPages, int totalElements, List<T> data) {
         this.page = page;
