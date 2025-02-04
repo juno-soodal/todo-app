@@ -3,6 +3,7 @@ package com.example.todoapp.presentation;
 import com.example.todoapp.application.AuthorService;
 import com.example.todoapp.application.dto.CreateAuthorRequest;
 import com.example.todoapp.application.dto.AuthorResponse;
+import com.example.todoapp.presentation.docs.AuthorControllerDocs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/authors")
-public class AuthorController {
+public class AuthorController implements AuthorControllerDocs {
 
     private final AuthorService authorService;
 
