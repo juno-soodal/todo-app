@@ -73,6 +73,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         );
     }
 
+    @Transactional
     @Override
     public ScheduleResponse updateSchedule(Long authorId, Long scheduleId, UpdateScheduleRequest updateScheduleRequest) {
         Schedule schedule = scheduleFinder.find(authorId, scheduleId);
@@ -90,6 +91,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         );
     }
 
+    @Transactional
     @Override
     public void deleteSchedule(Long authorId, Long scheduleId, String password) {
         Author author = authorFinder.find(authorId);
