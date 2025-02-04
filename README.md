@@ -14,6 +14,8 @@
 사용자 관리
 작성자 등록 (중복 가능)
 
+ERD
+
 API 명세서
 
 ## POST /api/authors 작성자 생성
@@ -48,9 +50,11 @@ response 400
 ## 일정 관리
 
 #### GET /api/authors/{authorId}/schedules 일정 전체 조회
-#####  Path Variables
+Path Variables
+
 authorId : 3, scheduleId : 133
-#### Parameters
+
+Parameters
 ```json
 {
   "modifiedAt": "2025-02-04",
@@ -85,8 +89,11 @@ response 400
 }
 ```
 #### GET /api/authors/{authorId}/schedules/{scheduleId}
-##### parameters authorId : 3, scheduleId: 133
+
+parameters authorId : 3, scheduleId: 133
+
 response 200
+
 ```json
 {
   "data": {
@@ -107,7 +114,8 @@ response 400
 }
 ```
 #### PUT /api/authors/{authorId}/schedules/{scheduleId} 일정 수정
-##### parameters authorId : 3, scheduleId: 133
+path authorId : 3, scheduleId: 133
+
 parameters
 ```json
 {
@@ -136,8 +144,10 @@ response 400
 }
 ```
 #### DELETE /api/authors/{authorId}/schedules/{scheduleId} 일정 삭제
-##### path authorId : 3, scheduleId: 133
-##### query password: testasd
+path authorId : 3, scheduleId: 133
+
+query password: testasd
+
 response 200 "삭제 성공"
 #### POST /api/authors/{authorId}/schedules 일정 생성
 paramters
