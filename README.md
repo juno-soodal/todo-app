@@ -16,6 +16,8 @@
 
 ERD
 
+<img width="364" alt="Image" src="https://github.com/user-attachments/assets/24350510-26f4-4f7e-8e47-0b1267167aac" />
+
 API 명세서
 
 ## POST /api/authors 작성자 생성
