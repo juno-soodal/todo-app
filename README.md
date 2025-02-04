@@ -1,103 +1,169 @@
 일정 관리 앱
 
-유스케이스 시나리오
+사용자가 자신의 할 일을 등록하고, 수정 및 삭제할 수 있습니다.
 
-목표:사용자는 새로운 작성자를 생성할 수 있다.
-액터:일반 사용자
-성공시나리오
-1. 사용자는 작성자 정보를 시스템에 생성 요청으로 보낸다.
-2. 시스템은 해당 정보가 유효한지 검증한다.(모든 데이터 빈값 이메일 같이 형식을 준수 했는지)
-3. 시스템은 해당 사용자 중복 검사한다.
-4. 시스템은 사용자를 생성한다.
-5. 시스템은 사용자를 저장한다.
-6. 시스템은 생성 결과를 반환한다.
-실패시나리오
-1. 유효성 검사 실표하면 오류 반환한다.
-2. 중복된 사용자 있을 경우 오류 반환한다.
-3. 시스템에 오류 발생하면 오류 반환한다.
+주요 기능
 
-사용자 작성자 생청 요청 -> 컨트롤러 수신
+일정 관리
+일정 등록(Create)
+일정 조회(Read)
+일정 수정(Update)
+일정 삭제(Delete)
+페이네이션(Pagination) 적용
 
+사용자 관리
+작성자 등록 (중복 가능)
 
-목표:사용자는 일정 정보를 작성하여 새로운 일정을 생성할 수 있다.
-액터:일반 사용자
-성공시나리오
-1. 사용자는 일정 생성 위해 작성자정보, 일정 정보를 포함하여 시스템에 요청을 보낸다.
-2. 시스템은 넘어온 데이터가 비어있는지 검증한다.
-3. 시스템은 작성자 정보가 올바른지 검증한다.
-4. 시스템은 새로운 일정을 생성한다.
-5. 시스템은 일정을 저장한다.
-6. 시스템은 저장된 결과를 반환한다.
-실패시나리오
-1. 넘어온 데이터가 비어있을경우 오류 반환한다.
-2. 사용자가 없을 경우 오류 반환한다.
-3. 정상적으로 일정이 저장되지않으면 오류 반환한다.
+API 명세서
 
-도메인 모델 작성자, 일정
-
-도메인 모델 일정
-사용자 일정 생성 요청 -> 컨트롤러 수신
-컨트롤러 일정 생성 요청 -> 서비스 수신 
-서비스 일정 저장 요청 -> 레파지토리 수신
+## POST /api/authors 작성자 생성
+request body
+```json
+{
+   "authorName": "string",
+   "email": "string",
+   "password": "string"
+}
+```
+response 200
+```json
 
 
-목표: 사용자는 일정의 일부 정보로 등록된 일정 목록을 전부 조회
-액터:일반 사용자
-성공시나리오
-1. 사용자는 일정의 일부 정보(작성자명, 수정일)로 시스템에 조회 요청을 보낸다.
-2. 시스템은 다음을 수행한다.
-   a. 요청된 조건에 따라 등록된 일정을 필터링 한다.
-   b. 수정일을 기준으로 내림차순으로 정렬한다.
-3. 시스템은 조회된 일정 목록을 사용자에게 반환한다.
-
-도메인 모델 일정
-
-사용자 조회 요청 -> 컨트롤러 수신
-컨트롤러 일정 목록 조회 요청 -> 서비스 수신
-서비스 일정 목록 조회 요청 -> 레파지토리 수신
-레파지토리 조회 응답 -> 서비스 응답 -> 컨트롤러 응답
-
-목표: 사용자는 특정 일정의 정보를 조회
-액터: 일반 사용자
-성공시나리오
-1. 사용자는 일정의 고유 식별자로 시스템에 조회 요청을 보낸다.
-2. 시스템은 조회된 일정을 사용자에게 반환한다.
-
-목표: 사용자는 선택한 일정의 정보를 수정
-액터: 일반 사용자
-성공시나리오
-1. 사용자는 일정의 고유 식별자와 변경할 정보를 포함하여 시스템에 조회 요청을 보낸다.
-2. 시스템은 변경할 일정 정보로 수정한다.
-3. 시스템은 수정된 일정 정보를 반환한다.
-
-사용자 수정 요청 -> 컨트롤러 수신
-컨트롤러 일정 수정 요청 -> 서비스 수신
-서비스 일정 수정 요청 -> 레파지토리 수신
-
-목표:사용자는 선택한 일정을 삭제
-액터: 일반 사용자
-성공시나리오
-1. 사용자는 일정의 고유 식별자와 비밀번호를 포함하여 시스템에 삭제 요청을한다.
-2. 시스템은 일정 정보를 삭제한다.
-
-
-
+{
+   "id": 9007199254740991,
+   "authorName": "string",
+   "email": "string",
+   "createdAt": "2025-02-04T00:50:11.336Z",
+   "modifiedAt": "2025-02-04T00:50:11.336Z"
+}
+```
+response 400
+```json
 {
    "error": {
-   "status": "ERR_MODEL_NOT_FOUND",
-   "message": "model not found",
+      "message":""
    }
 }
+```
+## 일정 관리
 
+#### GET /api/authors/{authorId}/schedules 일정 전체 조회
+#####  Path Variables
+authorId : 3, scheduleId : 133
+#### Parameters
+```json
 {
-"page": 0,
-"size": 20,
-"totalPages": 4,
-"totalElements": 100,
-"data": [ ... ]
+  "modifiedAt": "2025-02-04",
+  "page": 1,
+  "size": 10
 }
-
-
-
-
-
+```
+response 200
+```json
+{
+  "page": 1,
+  "size": 10,
+  "totalPages": 6,
+  "totalElements": 51,
+  "data": [
+    {
+      "id": 133,
+      "toDo": "string",
+      "authorName": "string",
+      "createdAt": "2025-02-04T01:00:46.826Z",
+      "modifiedAt": "2025-02-04T01:00:46.826Z"
+    }
+  ]
+}
+```
+response 400
+```json
+{
+  "error": {
+    "message": ""
+  }
+}
+```
+#### GET /api/authors/{authorId}/schedules/{scheduleId}
+##### parameters authorId : 3, scheduleId: 133
+response 200
+```json
+{
+  "data": {
+    "id": 9007199254740991,
+    "toDo": "string",
+    "authorName": "string",
+    "createdAt": "2025-02-04T01:03:19.374Z",
+    "modifiedAt": "2025-02-04T01:03:19.374Z"
+  }
+}
+```
+response 400
+```json
+{
+  "error": {
+    "message": ""
+  }
+}
+```
+#### PUT /api/authors/{authorId}/schedules/{scheduleId} 일정 수정
+##### parameters authorId : 3, scheduleId: 133
+parameters
+```json
+{
+  "toDo": "string",
+  "password": "string"
+}
+```
+response 200
+```json
+{
+  "data": {
+    "id": 9007199254740991,
+    "toDo": "string",
+    "authorName": "string",
+    "createdAt": "2025-02-04T01:05:19.495Z",
+    "modifiedAt": "2025-02-04T01:05:19.495Z"
+  }
+}
+```
+response 400
+```json
+{
+  "error": {
+    "message": ""
+  }
+}
+```
+#### DELETE /api/authors/{authorId}/schedules/{scheduleId} 일정 삭제
+##### path authorId : 3, scheduleId: 133
+##### query password: testasd
+response 200 "삭제 성공"
+#### POST /api/authors/{authorId}/schedules 일정 생성
+paramters
+```json
+{
+  "toDo": "string",
+  "password": "string"
+}
+```
+response 200
+```json
+{
+  "data": {
+    "id": 9007199254740991,
+    "toDo": "string",
+    "authorName": "string",
+    "createdAt": "2025-02-04T01:08:36.828Z",
+    "modifiedAt": "2025-02-04T01:08:36.828Z"
+  }
+}
+```
+response 400
+```json
+{
+  "error": {
+    "message": ""
+  }
+}
+```

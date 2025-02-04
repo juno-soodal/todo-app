@@ -7,6 +7,7 @@ import com.example.todoapp.application.common.PageResponse;
 import com.example.todoapp.application.dto.ScheduleResponse;
 import com.example.todoapp.application.dto.ScheduleSearchParam;
 import com.example.todoapp.application.dto.UpdateScheduleRequest;
+import com.example.todoapp.presentation.docs.ScheduleControllerDocs;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RequestMapping("/api/authors/{authorId}/schedules")
 @RequiredArgsConstructor
-public class ScheduleController {
+public class ScheduleController implements ScheduleControllerDocs {
     private final ScheduleService scheduleService;
 
     @PostMapping

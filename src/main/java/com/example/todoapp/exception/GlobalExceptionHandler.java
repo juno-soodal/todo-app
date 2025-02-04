@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -21,29 +20,29 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
-    public ResponseEntity<ErrorReponse<Map<String,Object>>> handleTodoAppException(ToDoAppException e, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleTodoAppException(ToDoAppException e, HttpServletRequest request) {
         logWarn(e,request);
         Map<String, Object> response = new HashMap<>();
         response.put("message", e.getMessage());
-        return new ResponseEntity<>(new ErrorReponse<>(response), e.getStatus());
+        return new ResponseEntity<>(new ErrorResponse(response), e.getStatus());
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorReponse<Map<String, Object>>> handleValidationException(MethodArgumentNotValidException e,HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
 
         logWarn(e,request);
         Map<String, Object> response = new HashMap<>();
         List<String> errors = e.getFieldErrors().stream().map(fieldError -> fieldError.getDefaultMessage()).toList();
         response.put("message", errors);
-        return new ResponseEntity<>(new ErrorReponse<>(response), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorResponse(response), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorReponse<Map<String, Object>>> handleTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException e, HttpServletRequest request) {
         logWarn(e, request);
         Map<String, Object> response = new HashMap<>();
         response.put("message", e.getName() + " 정확한 형식을 입력해주세요");
-        return new ResponseEntity<>(new ErrorReponse<>(response), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ErrorResponse(response), HttpStatus.BAD_REQUEST);
     }
 
     private void logWarn(Exception e, HttpServletRequest request) {
